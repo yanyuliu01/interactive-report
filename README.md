@@ -1,3 +1,9 @@
+<div align="right">
+
+**English** | [中文](README_zh.md)
+
+</div>
+
 <div align="center">
 
 # Interactive Report
