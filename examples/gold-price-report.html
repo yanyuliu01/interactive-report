@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黄金价格监控报表 · 2026年4月</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F1EDE6;
+    --border: #E0D9D0;
+    --text: #1C1A17;
+    --muted: #7A756D;
+    --accent: #5340C4;
+    --accent-light: #EAE7FA;
+    --teal: #0A6B52;
+    --teal-light: #DFF2EC;
+    --amber: #8A5200;
+    --amber-light: #FDF0D8;
+    --red: #A8200D;
+    --red-light: #FBEAE8;
+    --blue: #1D4ED8;
+    --blue-light: #EEF2FF;
+    --gold: #A67C00;
+    --gold-light: #FDF6E3;
+    --serif: Georgia, 'Songti SC', STSong, serif;
+    --sans: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --mono: 'SF Mono', Consolas, 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); font-size: 15px; line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* Hero */
+  .hero { padding: 64px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    color: var(--gold); background: var(--gold-light);
+    padding: 4px 12px; border-radius: 99px; margin-bottom: 20px;
+  }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+  .hero h1 {
+    font-family: var(--serif); font-size: clamp(28px, 5vw, 48px);
+    line-height: 1.15; letter-spacing: -.02em; margin-bottom: 16px;
+  }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-desc { font-size: 16px; color: var(--muted); max-width: 600px; line-height: 1.7; margin-bottom: 24px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 20px; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+  .meta-value { font-size: 13px; font-weight: 500; }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  h2 { font-family: var(--serif); font-size: 26px; line-height: 1.25; margin-bottom: 16px; }
+  h3 { font-size: 14px; font-weight: 700; letter-spacing: .02em; margin: 24px 0 10px; }
+  p { margin-bottom: 12px; }
+
+  /* Widget Frame */
+  .widget-frame {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin: 24px 0;
+  }
+  .widget-header {
+    background: var(--surface2); padding: 10px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+  .widget-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .widget-body { padding: 24px; }
+
+  /* Metric Cards */
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+  .metric-card { background: var(--surface2); border-radius: 10px; padding: 14px; text-align: center; }
+  .metric-val { font-family: var(--serif); font-size: 26px; line-height: 1.1; }
+  .metric-label { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .mc-teal { color: var(--teal); }
+  .mc-amber { color: var(--amber); }
+  .mc-accent { color: var(--accent); }
+  .mc-red { color: var(--red); }
+  .mc-gold { color: var(--gold); }
+
+  /* Callout */
+  .callout {
+    border-left: 3px solid var(--accent); background: var(--accent-light);
+    padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 14px;
+  }
+  .callout.teal { border-color: var(--teal); background: var(--teal-light); }
+  .callout.amber { border-color: var(--amber); background: var(--amber-light); }
+  .callout.red { border-color: var(--red); background: var(--red-light); }
+  .callout-title {
+    font-weight: 700; font-size: 12px; letter-spacing: .05em;
+    text-transform: uppercase; margin-bottom: 6px; color: var(--accent);
+  }
+  .callout.teal .callout-title { color: var(--teal); }
+  .callout.amber .callout-title { color: var(--amber); }
+  .callout.red .callout-title { color: var(--red); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 6px 16px; border-radius: 99px; font-size: 12px; font-family: var(--sans);
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    cursor: pointer; transition: all .2s;
+  }
+  .tab-btn:hover { background: var(--surface2); }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Segmented Bar */
+  .seg-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; margin: 12px 0; }
+  .seg-bar div { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #fff; }
+  .seg-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+  .seg-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .seg-legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* Badges */
+  .badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 99px; margin-top: 8px; font-weight: 500; }
+  .badge-green { background: var(--teal-light); color: var(--teal); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+
+  /* Risk Grid */
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .risk-card { padding: 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+  .risk-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .risk-item { font-size: 12px; color: var(--muted); padding: 6px 0; line-height: 1.5; border-bottom: 1px solid var(--surface2); }
+  .risk-item:last-child { border-bottom: none; }
+
+  /* Sortable Table */
+  .matrix { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .matrix th {
+    padding: 10px 12px; text-align: left; font-size: 11px;
+    font-family: var(--mono); letter-spacing: .04em;
+    color: var(--muted); text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none; white-space: nowrap; transition: color .15s;
+  }
+  .matrix th:hover { color: var(--accent); }
+  .matrix th.sorted { color: var(--accent); }
+  .matrix td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .matrix tr:last-child td { border-bottom: none; }
+  .trend-up { color: var(--teal); font-weight: 600; }
+  .trend-down { color: var(--red); font-weight: 600; }
+
+  /* Chart container */
+  .chart-wrap { position: relative; height: 340px; margin: 16px 0; }
+
+  /* Footer */
+  .footer {
+    margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+
+  /* SVG */
+  svg { width: 100%; height: auto; display: block; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .metric-grid { grid-template-columns: 1fr 1fr; }
+    .risk-grid { grid-template-columns: 1fr; }
+    body { padding: 16px; }
+    .hero h1 { font-size: 28px; }
+    .chart-wrap { height: 260px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="hero-tag">COMMODITIES · 2026.04.22</div>
+    <h1>黄金价格<em>监控报表</em></h1>
+    <p class="hero-desc">全球黄金市场正经历自2020年以来最猛烈的一波上涨行情。地缘冲突、央行购金潮与美联储降息预期三重共振，推动金价逼近历史峰值。本报告从多维度跟踪黄金市场核心指标。</p>
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">DATA SOURCE</span>
+        <span class="meta-value">LBMA / 上海金交所 / COMEX</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">FREQUENCY</span>
+        <span class="meta-value">日度更新</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">COVERAGE</span>
+        <span class="meta-value">6 类品种 · 5 家机构预测</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 01 核心指标 ===== -->
+  <div class="section">
+    <div class="section-label">01 · 核心指标</div>
+    <h2>关键数据一览</h2>
+    <p>2026年初至今，国际金价累计涨幅超过12%，4月22日盘中触及 $3,428 美元/盎司，距2025年4月创下的历史最高价 $3,500 仅一步之遥。国内金价同步走强，上海金交所 Au99.99 报价逼近 800 元/克关口。与此同时，VIX 恐慌指数维持高位，反映出市场避险情绪的持续升温。</p>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-val mc-gold">$3,428</div>
+        <div class="metric-label">现货价格<br>美元/盎司</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val mc-teal">+12.6%</div>
+        <div class="metric-label">年初至今涨幅<br>YTD</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val mc-gold" style="font-size:22px">&yen;798</div>
+        <div class="metric-label">国内金价<br>元/克 Au99.99</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val mc-red">68.2</div>
+        <div class="metric-label">VIX 恐慌指数<br>避险情绪偏高</div>
+      </div>
+    </div>
+
+    <div class="callout amber">
+      <div class="callout-title">风险提示</div>
+      黄金价格处于历史高位区域，近期受地缘政治、美联储政策预期及美元走势影响波动加剧。当前价格距历史最高价 $3,500 仅差 2.1%，追高需谨慎控制仓位。
+    </div>
+  </div>
+
+  <!-- ===== 02 价格走势 ===== -->
+  <div class="section">
+    <div class="section-label">02 · 价格走势</div>
+    <h2>近12个月黄金价格趋势</h2>
+    <p>从2025年5月至今，国际金价经历了一条清晰的上升通道。前三季度金价在 $2,300–$2,750 区间震荡攀升，进入2026年后明显加速——仅一季度就从 $2,800 飙升至 $3,400 以上，涨幅达22%。这一加速上行的背后，是全球央行增持、地缘摩擦升级和美联储降息预期的多重催化。</p>
+
+    <div class="widget-frame">
+      <div class="widget-header">
+        <div class="dot" style="background:#FF6058"></div>
+        <div class="dot" style="background:#FFBD2E"></div>
+        <div class="dot" style="background:#28CA42"></div>
+        <span style="margin-left:6px">XAUUSD Monthly Close</span>
+      </div>
+      <div class="widget-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showTab('ch-trend',this)">月度走势</button>
+          <button class="tab-btn" onclick="showTab('ch-bar',this); renderBarChart()">贵金属对比</button>
+        </div>
+        <div class="tab-panel active" id="ch-trend">
+          <div class="chart-wrap">
+            <canvas id="trendChart"></canvas>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:8px;">2026年Q1加速上行区间标记为红色，此前为稳步上行阶段。</p>
+        </div>
+        <div class="tab-panel" id="ch-bar">
+          <div class="chart-wrap">
+            <canvas id="barChart"></canvas>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:8px;">白银以18.3%领涨贵金属板块，黄金与铂金紧随其后，标普500则录得负收益。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 03 驱动因素分析 ===== -->
+  <div class="section">
+    <div class="section-label">03 · 驱动因素</div>
+    <h2>金价上涨的五大推手</h2>
+    <p>本轮金价上涨并非单一因素驱动，而是"五力共振"的结果。地缘政治风险贡献了最大的边际推力——中东局势反复、俄乌冲突持续令避险需求居高不下；美联储年内降息2-3次的市场预期压低了实际利率，降低了持有黄金的机会成本；美元指数从年初的106回落至98附近，直接抬升以美元计价的金价；全球央行连续第三年净购金超过1,000吨，构成了强劲的需求底部；通胀虽有回落但仍高于2%目标，保值动机依然存在。</p>
+
+    <h3>驱动因素权重分布</h3>
+    <div class="seg-bar">
+      <div style="flex:35;background:var(--red)">地缘政治 35%</div>
+      <div style="flex:25;background:var(--accent)">美联储预期 25%</div>
+      <div style="flex:20;background:var(--gold)">美元走弱 20%</div>
+      <div style="flex:15;background:var(--teal)">央行购金 15%</div>
+      <div style="flex:5;background:var(--muted)"></div>
+    </div>
+    <div class="seg-legend">
+      <div class="seg-legend-item"><span class="seg-legend-dot" style="background:var(--red)"></span>地缘政治紧张</div>
+      <div class="seg-legend-item"><span class="seg-legend-dot" style="background:var(--accent)"></span>美联储降息预期</div>
+      <div class="seg-legend-item"><span class="seg-legend-dot" style="background:var(--gold)"></span>美元走弱</div>
+      <div class="seg-legend-item"><span class="seg-legend-dot" style="background:var(--teal)"></span>央行购金潮</div>
+      <div class="seg-legend-item"><span class="seg-legend-dot" style="background:var(--muted)"></span>通胀预期 5%</div>
+    </div>
+
+    <!-- SVG Hub-Spoke Diagram -->
+    <div class="widget-frame" style="margin-top:24px;">
+      <div class="widget-header">
+        <div class="dot" style="background:#FF6058"></div>
+        <div class="dot" style="background:#FFBD2E"></div>
+        <div class="dot" style="background:#28CA42"></div>
+        <span style="margin-left:6px">Gold Price Driver Map</span>
+      </div>
+      <div class="widget-body" style="padding:20px;">
+        <svg viewBox="0 0 680 360">
+          <!-- Central circle: Gold -->
+          <circle cx="340" cy="180" r="56" fill="var(--gold-light)" stroke="var(--gold)" stroke-width="2"/>
+          <text x="340" y="172" text-anchor="middle" style="font-size:14px;font-weight:700;fill:var(--gold);font-family:sans-serif">XAUUSD</text>
+          <text x="340" y="192" text-anchor="middle" style="font-size:11px;fill:var(--gold);font-family:sans-serif">$3,428</text>
+
+          <!-- Node 1: Geopolitics (top) -->
+          <circle cx="340" cy="42" r="36" fill="var(--red-light)" stroke="var(--red)" stroke-width="1.2"/>
+          <text x="340" y="38" text-anchor="middle" style="font-size:10px;font-weight:700;fill:var(--red);font-family:sans-serif">地缘政治</text>
+          <text x="340" y="52" text-anchor="middle" style="font-size:9px;fill:var(--muted);font-family:sans-serif">35%</text>
+          <line x1="340" y1="78" x2="340" y2="124" stroke="var(--red)" stroke-width="1.5" opacity=".6"/>
+
+          <!-- Node 2: Fed (top-right) -->
+          <circle cx="560" cy="100" r="36" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="560" y="96" text-anchor="middle" style="font-size:10px;font-weight:700;fill:var(--accent);font-family:sans-serif">美联储</text>
+          <text x="560" y="110" text-anchor="middle" style="font-size:9px;fill:var(--muted);font-family:sans-serif">25%</text>
+          <line x1="526" y1="118" x2="392" y2="162" stroke="var(--accent)" stroke-width="1.5" opacity=".6"/>
+
+          <!-- Node 3: USD (bottom-right) -->
+          <circle cx="560" cy="270" r="36" fill="var(--amber-light)" stroke="var(--amber)" stroke-width="1.2"/>
+          <text x="560" y="266" text-anchor="middle" style="font-size:10px;font-weight:700;fill:var(--amber);font-family:sans-serif">美元指数</text>
+          <text x="560" y="280" text-anchor="middle" style="font-size:9px;fill:var(--muted);font-family:sans-serif">20%</text>
+          <line x1="526" y1="252" x2="392" y2="198" stroke="var(--amber)" stroke-width="1.5" opacity=".6"/>
+
+          <!-- Node 4: Central Banks (bottom-left) -->
+          <circle cx="120" cy="270" r="36" fill="var(--teal-light)" stroke="var(--teal)" stroke-width="1.2"/>
+          <text x="120" y="266" text-anchor="middle" style="font-size:10px;font-weight:700;fill:var(--teal);font-family:sans-serif">央行购金</text>
+          <text x="120" y="280" text-anchor="middle" style="font-size:9px;fill:var(--muted);font-family:sans-serif">15%</text>
+          <line x1="154" y1="252" x2="288" y2="198" stroke="var(--teal)" stroke-width="1.5" opacity=".6"/>
+
+          <!-- Node 5: Inflation (top-left) -->
+          <circle cx="120" cy="100" r="36" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="120" y="96" text-anchor="middle" style="font-size:10px;font-weight:700;fill:var(--muted);font-family:sans-serif">通胀预期</text>
+          <text x="120" y="110" text-anchor="middle" style="font-size:9px;fill:var(--muted);font-family:sans-serif">5%</text>
+          <line x1="154" y1="118" x2="288" y2="162" stroke="var(--border)" stroke-width="1.2" opacity=".5"/>
+
+          <!-- Connection labels -->
+          <rect x="296" y="94" width="88" height="20" rx="10" fill="var(--red)" opacity=".85"/>
+          <text x="340" y="108" text-anchor="middle" style="font-size:9px;fill:#fff;font-weight:600;font-family:sans-serif">避险需求</text>
+
+          <rect x="444" y="128" width="88" height="20" rx="10" fill="var(--accent)" opacity=".85"/>
+          <text x="488" y="142" text-anchor="middle" style="font-size:9px;fill:#fff;font-weight:600;font-family:sans-serif">利率下行</text>
+
+          <rect x="444" y="220" width="88" height="20" rx="10" fill="var(--amber)" opacity=".85"/>
+          <text x="488" y="234" text-anchor="middle" style="font-size:9px;fill:#fff;font-weight:600;font-family:sans-serif">汇率支撑</text>
+
+          <rect x="148" y="220" width="88" height="20" rx="10" fill="var(--teal)" opacity=".85"/>
+          <text x="192" y="234" text-anchor="middle" style="font-size:9px;fill:#fff;font-weight:600;font-family:sans-serif">需求底部</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 04 多维度价格监控 ===== -->
+  <div class="section">
+    <div class="section-label">04 · 价格监控</div>
+    <h2>多维度黄金产品价格一览</h2>
+    <p>同一时刻，不同渠道和品种的黄金报价存在显著价差。国际现货与期货价格高度联动，通常仅有 $3-5 的升水差异；而国内零售金饰因加入加工费和品牌溢价，每克价格较原料金高出约 170 元。投资者在配置黄金资产时，需根据自身目的（投资 vs. 消费）选择最优渠道。</p>
+
+    <div class="widget-frame">
+      <div class="widget-header">
+        <div class="dot" style="background:#FF6058"></div>
+        <div class="dot" style="background:#FFBD2E"></div>
+        <div class="dot" style="background:#28CA42"></div>
+        <span style="margin-left:6px">Multi-Channel Price Monitor</span>
+      </div>
+      <div class="widget-body" style="overflow-x:auto;">
+        <table class="matrix" id="priceTable">
+          <thead>
+            <tr id="pHead">
+              <th onclick="sortPrice('name')">品种</th>
+              <th onclick="sortPrice('price')">当前价格</th>
+              <th onclick="sortPrice('day')">日涨跌</th>
+              <th onclick="sortPrice('week')">周涨跌</th>
+              <th onclick="sortPrice('month')">月涨跌</th>
+              <th onclick="sortPrice('high52')">52周最高</th>
+              <th onclick="sortPrice('low52')">52周最低</th>
+            </tr>
+          </thead>
+          <tbody id="pBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 05 机构预测 ===== -->
+  <div class="section">
+    <div class="section-label">05 · 机构预测</div>
+    <h2>主流投行2026年底金价展望</h2>
+    <p>五大国际投行对2026年底金价的目标价预测集中在 $3,400–$3,700 区间。高盛给出了最乐观的 $3,700 目标价，主要基于其对全球央行持续增持和ETF资金回流的判断；美银则最为审慎，认为当前价格已基本反映利好，给出 $3,400 的保守预期。值得注意的是，当前 $3,428 的市价已触及或超过部分机构的目标价下沿，这意味着从机构共识的角度来看，上行空间正在收窄。</p>
+
+    <div class="widget-frame">
+      <div class="widget-header">
+        <div class="dot" style="background:#FF6058"></div>
+        <div class="dot" style="background:#FFBD2E"></div>
+        <div class="dot" style="background:#28CA42"></div>
+        <span style="margin-left:6px">2026 Year-End Forecast</span>
+      </div>
+      <div class="widget-body">
+        <div class="chart-wrap" style="height:280px;">
+          <canvas id="forecastChart"></canvas>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px;">红色虚线为当前价格 $3,428。超出虚线部分为机构预期的上行空间。</p>
+      </div>
+    </div>
+
+    <h3>风险与机会评估</h3>
+    <div class="risk-grid">
+      <div class="risk-card" style="border-color:var(--teal)">
+        <h4><span style="color:var(--teal)">&#10022;</span> 看多因素</h4>
+        <div class="risk-item"><strong>央行购金持续</strong> · 全球央行连续三年净购金超1,000吨，中国央行连续18个月增持</div>
+        <div class="risk-item"><strong>降息周期开启</strong> · 美联储年内预计降息2-3次，实际利率下行利好黄金</div>
+        <div class="risk-item"><strong>美元趋弱</strong> · 美元指数跌破100关口，技术面偏空，为金价提供汇率支撑</div>
+        <div class="risk-item"><strong>ETF资金回流</strong> · 全球黄金ETF连续6个月净流入，机构配置需求回暖</div>
+      </div>
+      <div class="risk-card" style="border-color:var(--red)">
+        <h4><span style="color:var(--red)">&#10022;</span> 风险因素</h4>
+        <div class="risk-item"><strong>获利回吐压力</strong> · 金价年内涨幅已逾12%，短期存在技术性回调风险</div>
+        <div class="risk-item"><strong>降息不及预期</strong> · 若通胀反弹导致美联储延缓降息，实际利率回升将压制金价</div>
+        <div class="risk-item"><strong>地缘缓和</strong> · 若中东或俄乌出现停火进展，避险溢价可能迅速消退</div>
+        <div class="risk-item"><strong>替代资产竞争</strong> · 比特币等数字资产分流部分避险资金，黄金相对吸引力下降</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 06 核心判断 ===== -->
+  <div class="section">
+    <div class="section-label">06 · 核心判断</div>
+    <h2>结论与策略建议</h2>
+    <p>综合来看，支撑本轮金价上涨的结构性因素——央行购金、去美元化趋势、实际利率下行——仍然完好。但短期看，价格已逼近历史高位，市场对利好的定价较为充分。在这种"长期乐观、短期偏贵"的格局下，投资者需要在战略配置与战术择时之间做出平衡。</p>
+
+    <div class="callout teal">
+      <div class="callout-title">策略建议</div>
+      <strong>中长期（6-12个月）：</strong>黄金在资产组合中的战略配置价值依然突出，建议维持 5%-10% 的仓位。全球央行的结构性增持和去美元化趋势为金价提供了坚实的需求底部。<br><br>
+      <strong>短期（1-3个月）：</strong>当前追高性价比有限，建议等待回调至 $3,200-$3,300 区间时分批建仓。关注美联储6月议息会议结果和地缘事件演变，作为调整仓位的关键信号。<br><br>
+      <strong>渠道选择：</strong>投资目的优先选择银行积存金或黄金ETF（费率低、流动性好）；消费目的参考品牌金饰，关注节假日促销窗口。
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <span>数据来源：LBMA / 上海金交所 / COMEX / Bloomberg · 不构成投资建议</span>
+    <span>Generated 2026.04.22</span>
+  </div>
+
+</div>
+
+<script>
+// ===== Tab system =====
+function showTab(id, btn) {
+  const frame = btn.closest('.widget-body') || btn.closest('.page');
+  frame.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  frame.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== Chart.js constants (warm theme) =====
+const FONT = { family: "-apple-system, PingFang SC, sans-serif", size: 11 };
+const GRID = { color: '#E0D9D0' };
+const TICK = { color: '#7A756D', font: FONT };
+
+// ===== 1. Trend Chart =====
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+new Chart(trendCtx, {
+  type: 'line',
+  data: {
+    labels: ['2025.05','2025.06','2025.07','2025.08','2025.09','2025.10','2025.11','2025.12','2026.01','2026.02','2026.03','2026.04'],
+    datasets: [{
+      label: 'XAUUSD 月度收盘价',
+      data: [2350, 2330, 2450, 2510, 2620, 2740, 2680, 2650, 2800, 2870, 3050, 3428],
+      borderColor: '#A67C00',
+      backgroundColor: 'rgba(166,124,0,.1)',
+      borderWidth: 2.5,
+      pointRadius: 5,
+      pointBackgroundColor: function(ctx) {
+        return ctx.dataIndex >= 8 ? '#A8200D' : '#A67C00';
+      },
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      tension: .3,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false }, ticks: TICK },
+      y: {
+        grid: GRID, ticks: { ...TICK, callback: v => '$' + v.toLocaleString() },
+        beginAtZero: false, min: 2100
+      }
+    },
+    plugins: {
+      legend: { labels: { font: FONT, usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        backgroundColor: '#1C1A17', titleFont: { size: 12 }, bodyFont: { size: 11 },
+        padding: 10, cornerRadius: 8,
+        callbacks: { label: ctx => ' $' + ctx.parsed.y.toLocaleString() + ' /oz' }
+      },
+      annotation: undefined
+    }
+  }
+});
+
+// ===== 2. Bar Chart (lazy) =====
+let barChartInstance = null;
+function renderBarChart() {
+  if (barChartInstance) return;
+  const ctx = document.getElementById('barChart').getContext('2d');
+  barChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['黄金\nXAUUSD', '白银\nXAGUSD', '铂金\nXPTUSD', '钯金\nXPDUSD', '标普500'],
+      datasets: [{
+        label: '2026 YTD 涨跌幅 (%)',
+        data: [12.6, 18.3, 8.5, 5.2, -3.8],
+        backgroundColor: ['rgba(166,124,0,.7)', 'rgba(160,174,192,.7)', 'rgba(113,128,150,.7)', 'rgba(159,122,234,.7)', 'rgba(168,32,13,.7)'],
+        borderColor: ['#A67C00', '#718096', '#4A5568', '#6B46C1', '#A8200D'],
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        x: { grid: GRID, ticks: { ...TICK, callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { ...TICK, font: { ...FONT, size: 12 } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1C1A17', titleFont: { size: 12 }, bodyFont: { size: 11 },
+          padding: 10, cornerRadius: 8,
+          callbacks: { label: ctx => ' ' + ctx.parsed.x + '%' }
+        }
+      }
+    }
+  });
+}
+
+// ===== 3. Forecast Chart =====
+const fcCtx = document.getElementById('forecastChart').getContext('2d');
+new Chart(fcCtx, {
+  type: 'bar',
+  data: {
+    labels: ['高盛', '摩根大通', '瑞银', '花旗银行', '美银'],
+    datasets: [{
+      label: '2026年底目标价',
+      data: [3700, 3600, 3500, 3500, 3400],
+      backgroundColor: ['rgba(166,124,0,.6)', 'rgba(29,78,216,.5)', 'rgba(10,107,82,.5)', 'rgba(159,122,234,.5)', 'rgba(237,137,54,.5)'],
+      borderColor: ['#A67C00', '#1D4ED8', '#0A6B52', '#6B46C1', '#C05621'],
+      borderWidth: 1.5,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    scales: {
+      x: {
+        grid: GRID,
+        ticks: { ...TICK, callback: v => '$' + v.toLocaleString() },
+        min: 3200, max: 3800
+      },
+      y: { grid: { display: false }, ticks: { ...TICK, font: { ...FONT, size: 12 } } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1C1A17', titleFont: { size: 12 }, bodyFont: { size: 11 },
+        padding: 10, cornerRadius: 8,
+        callbacks: { label: ctx => ' $' + ctx.parsed.x.toLocaleString() }
+      },
+      annotation: {
+        annotations: {
+          currentPrice: {
+            type: 'line',
+            xMin: 3428, xMax: 3428,
+            borderColor: '#A8200D',
+            borderWidth: 2,
+            borderDash: [6, 4],
+            label: {
+              display: true,
+              content: '当前 $3,428',
+              position: 'start',
+              backgroundColor: '#A8200D',
+              color: '#fff',
+              font: { size: 10 },
+              padding: 4
+            }
+          }
+        }
+      }
+    }
+  }
+});
+
+// ===== 4. Price Table =====
+const PRICES = [
+  { name: '伦敦金 XAUUSD', price: '$3,428.50', priceNum: 3428.5, day: 1.25, week: 3.82, month: 8.15, high52: '$3,500.00', low52: '$2,286.00' },
+  { name: '上海金 Au99.99', price: '¥798.20/克', priceNum: 798.2, day: 1.18, week: 3.56, month: 7.92, high52: '¥815.00', low52: '¥528.00' },
+  { name: 'COMEX黄金期货', price: '$3,432.80', priceNum: 3432.8, day: 1.30, week: 3.90, month: 8.22, high52: '$3,509.90', low52: '$2,290.00' },
+  { name: '黄金ETF (GLD)', price: '$315.42', priceNum: 315.42, day: 1.20, week: 3.75, month: 7.88, high52: '$322.50', low52: '$210.30' },
+  { name: '周大福足金饰品', price: '¥968.00/克', priceNum: 968, day: -0.10, week: 2.80, month: 6.50, high52: '¥985.00', low52: '¥658.00' },
+  { name: '银行积存金', price: '¥802.50/克', priceNum: 802.5, day: 1.15, week: 3.50, month: 7.80, high52: '¥818.00', low52: '¥532.00' }
+];
+let pSortCol = null, pSortDir = 1;
+
+function sortPrice(col) {
+  if (pSortCol === col) pSortDir *= -1;
+  else { pSortCol = col; pSortDir = -1; }
+  renderPriceTable();
+  // Update header classes
+  document.querySelectorAll('#pHead th').forEach(th => th.classList.remove('sorted'));
+  const cols = ['name','price','day','week','month','high52','low52'];
+  const idx = cols.indexOf(col);
+  if (idx >= 0) document.querySelectorAll('#pHead th')[idx].classList.add('sorted');
+}
+
+function renderPriceTable() {
+  const sorted = [...PRICES];
+  if (pSortCol) {
+    sorted.sort((a, b) => {
+      let va = a[pSortCol], vb = b[pSortCol];
+      if (typeof va === 'string') return va.localeCompare(vb) * pSortDir;
+      return (va - vb) * pSortDir;
+    });
+  }
+  const body = document.getElementById('pBody');
+  body.innerHTML = '';
+  sorted.forEach(p => {
+    const tr = document.createElement('tr');
+    const trendClass = v => v >= 0 ? 'trend-up' : 'trend-down';
+    const sign = v => v >= 0 ? '+' : '';
+    tr.innerHTML = `
+      <td><strong>${p.name}</strong></td>
+      <td><strong>${p.price}</strong></td>
+      <td class="${trendClass(p.day)}">${sign(p.day)}${p.day.toFixed(2)}%</td>
+      <td class="${trendClass(p.week)}">${sign(p.week)}${p.week.toFixed(2)}%</td>
+      <td class="${trendClass(p.month)}">${sign(p.month)}${p.month.toFixed(2)}%</td>
+      <td>${p.high52}</td>
+      <td>${p.low52}</td>`;
+    body.appendChild(tr);
+  });
+}
+renderPriceTable();
+</script>
+</body>
+</html>
